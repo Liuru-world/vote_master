@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="liuru.world.vote_master.mapper.PerformanceMapper">
+    <select id="findShows" resultType="Performance">
+        SELECT id,name,actors,kind,date_format(date,'%Y-%m-%d') date,score FROM t_performances
+    </select>
+
+    <select id="getRankPerf" resultType="ExcelPR">
+        SELECT r.rank,p.name,p.actors,p.kind,p.score FROM rank_performance r
+        LEFT JOIN t_performances p ON r.id = p.id
+        ORDER BY r.rank
+    </select>
+
+    <select id="findShowsM" resultType="Performance">
+        select t.* from
+        (SELECT @rank := 0 ,@rowtotal := 0) b,(
+            SELECT a.name, a.actors, a.score,
+                   CASE WHEN @rowtotal = a.score THEN
+                            @rank
+                        WHEN IF(@rowtotal := a.score,@rowtotal := a.score,1) THEN
+                            @rank := @rank + 1
+                       END AS rank_no
+            FROM
+                (
+                    SELECT name,actors,score
+                    FROM t_performances
+                    ORDER BY score DESC
+                ) a
+        ) t
+        where t.rank_no in (1,2,3);
+    </select>
+
+    <select id="getCounts" resultType="Integer">
+        SELECT count(name)
+        FROM t_performances
+    </select>
+
+    <insert id="insertPerformance" parameterType="Performance">
+        INSERT INTO t_performances
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">
+                id,
+            </if>
+            <if test="name != null and name != ''">
+                name,
+            </if>
+            <if test="actors != null and actors != ''">
+                actors,
+            </if>
+            <if test="kind != null and kind != ''">
+                kind,
+            </if>
+                date,
+                score,
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="name != null and name != ''">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="actors != null and actors != ''">
+                #{actors,jdbcType=VARCHAR},
+            </if>
+            <if test="kind != null and kind != ''">
+                #{kind,jdbcType=VARCHAR},
+            </if>
+            #{date},
+            #{score},
+        </trim>
+    </insert>
+
+    <select id="findShowsByNameOrId" resultType="Performance">
+        SELECT id,name,actors,kind,date_format(date,'%Y-%m-%d') date,score FROM t_performances
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE concat("%",#{name},"%")
+            </if>
+            <if test="id != null and name != ''">
+                AND id = #{id}
+            </if>
+        </where>
+    </select>
+
+    <update id="updatePerformance">
+        UPDATE t_performances
+        <trim prefix="set" suffixOverrides=",">
+            <if test="score != null and score != ''">
+              score = score + #{score,jdbcType=INTEGER},
+            </if>
+        </trim>
+        WHERE name = #{name}
+    </update>
+
+</mapper>
