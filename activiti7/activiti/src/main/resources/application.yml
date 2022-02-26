@@ -1,0 +1,42 @@
+# 应用名称
+spring:
+  application:
+    name: activiti7
+  datasource:
+    # 数据库驱动：
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 数据源名称
+    name: defaultDataSource
+    # 数据库连接地址
+    url: jdbc:mysql://liuru.world:3306/activiti?serverTimezone=UTC
+    # 数据库用户名&密码：
+    username: activiti
+    password: 88888888
+
+# 应用服务 WEB 访问端口
+server:
+  port: 8080
+
+#下面这些内容是为了让MyBatis映射
+#指定Mybatis的Mapper文件
+mybatis:
+  mapper-locations: classpath:mappers/*xml
+  #指定Mybatis的实体目录
+  type-aliases-package: com.ewy.activiti7.entity
+
+#日志的相关配置
+logging:
+  level:
+    root: info
+
+#activiti历史表创建
+spring.activiti.history-level: full
+spring.activiti.db-history-used: true
+
+#spring activiti
+spring.activiti.check-process-definitions: false
+
+
+
+
+
