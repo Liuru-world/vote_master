@@ -11,8 +11,6 @@ public class UserInfo {
     private static RestTemplate restTemplate = new RestTemplate();
     public static List<User> getUsers(){
         ResponseEntity<List> entity = restTemplate.getForEntity("http://localhost:8080/user/userlist", List.class);
-        return entity.getBody();
+        return entity.getBody() ;
     }
-
-
 }
